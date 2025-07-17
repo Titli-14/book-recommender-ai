@@ -12,3 +12,32 @@ Recommends books based on reader preferences
 Returns similar books instantly
 
 Clean and minimal UI design for a smooth experience.
+
+## 🚀 How It Works
+
+1. The user selects a book they like.
+2. The system analyzes similarities and patterns.
+3. It then recommends books that are most likely to match the user's taste.
+
+---
+
+## 📂 Project Structure
+
+- `index.html` – Home page for discovering books
+- `book.html` – Book detail view with recommendations
+- `recommend.py` – Backend logic to generate book suggestions
+- `.gitignore` – Ensures large model files are not uploaded
+
+---
+
+## 💡 Why This Project?
+
+This project is built to make book discovery more efficient and enjoyable. Instead of browsing endlessly or relying on generic bestseller lists, users receive smart suggestions that align with their reading preferences.
+
+---
+
+## 📌 Note
+
+Model files (`.pkl`) are not included in this repository due to size limitations.
+
+---

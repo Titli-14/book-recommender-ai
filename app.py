@@ -1,16 +1,25 @@
 import streamlit as st
 import pickle
 import pandas as pd
+import gdown  # for downloading from Google Drive
 from sklearn.neighbors import NearestNeighbors
 from difflib import get_close_matches
+import os
 
-# ============ Load Data ============
+# ============ Download & Load Data ============
+def load_file(drive_url, local_name):
+    if not os.path.exists(local_name):
+        st.info(f"⬇️ Downloading {local_name} ... please wait")
+        gdown.download(drive_url, local_name, quiet=False)
+    with open(local_name, "rb") as f:
+        return pickle.load(f)
 
-with open("pivot_table.pkl", "rb") as f:
-    pivot_table = pickle.load(f)
+# Replace these with your Google Drive shareable links
+PIVOT_TABLE_URL = "https://drive.google.com/file/d/1_djfUff6J176kiB7-BqBRiIU0w_RN9N8/view?usp=drive_link"
+MODEL_URL = "https://drive.google.com/file/d/1tbNAD0WLP8XLq6a36LVqWwWVSWFE6WyK/view?usp=drive_link"
 
-with open("book_recommender_model.pkl", "rb") as f:
-    model = pickle.load(f)
+pivot_table = load_file(PIVOT_TABLE_URL, "pivot_table.pkl")
+model = load_file(MODEL_URL, "book_recommender_model.pkl")
 
 # ============ Page Config ============
 st.set_page_config(page_title="Book Recommender", page_icon="📚", layout="centered")
@@ -18,18 +27,17 @@ st.set_page_config(page_title="Book Recommender", page_icon="📚", layout="cent
 # ============ Sidebar ============
 with st.sidebar:
     st.markdown("<h2 style='color:#4B6EA9;'>📚 Book Recommender</h2>", unsafe_allow_html=True)
-
     st.markdown("""
     <p style='font-size: 15px;'>
         Looking for your next great read? ✨<br><br>
-        Just type the name of a book you love, and we’ll suggest others you might enjoy — based on what readers like you also appreciated.
+        Just type the name of a book you love, and we’ll suggest others you might enjoy — 
+        based on what readers like you also appreciated.
     </p>
     <hr style='border-top: 1px solid #bbb;'>
     <p style='font-size: 13px; color:#666;'>
         Smart, simple, and tailored to your taste. Start exploring!
     </p>
     """, unsafe_allow_html=True)
-
 
 # ============ Title ============
 st.markdown("<h1 style='text-align: center; color: #6C63FF;'>📚 Book Recommendation System</h1>", unsafe_allow_html=True)

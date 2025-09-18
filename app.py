@@ -1,25 +1,35 @@
 import streamlit as st
-import pickle
+import joblib
+import gdown
+import os
 import pandas as pd
-import gdown  # for downloading from Google Drive
 from sklearn.neighbors import NearestNeighbors
 from difflib import get_close_matches
-import os
 
-# ============ Download & Load Data ============
-def load_file(drive_url, local_name):
+# ============ Google Drive Links ============
+PIVOT_TABLE_URL = "https://drive.google.com/uc?id=1u50YACOIyFtgruj7VH2XQ3TvWqF6y-QT"
+MODEL_URL = "https://drive.google.com/uc?id=1EK5Gueb-EDGFGg6RvKhQAAfdDqsTEWRd"
+
+# ============ Download Helper ============
+def download_file(url, local_name):
     if not os.path.exists(local_name):
-        st.info(f"⬇️ Downloading {local_name} ... please wait")
-        gdown.download(drive_url, local_name, quiet=False)
-    with open(local_name, "rb") as f:
-        return pickle.load(f)
+        with st.spinner(f"⬇️ Downloading {local_name} ... please wait"):
+            gdown.download(url, local_name, quiet=False, fuzzy=True)
+    return local_name
 
-# Replace these with your Google Drive shareable links
-PIVOT_TABLE_URL = "https://drive.google.com/file/d/1_djfUff6J176kiB7-BqBRiIU0w_RN9N8/view?usp=drive_link"
-MODEL_URL = "https://drive.google.com/file/d/1tbNAD0WLP8XLq6a36LVqWwWVSWFE6WyK/view?usp=drive_link"
+# ============ Cached Loader ============
+@st.cache_resource
+def load_data():
+    pivot_file = download_file(PIVOT_TABLE_URL, "pivot_table.joblib")
+    model_file = download_file(MODEL_URL, "book_recommender_model.joblib")
 
-pivot_table = load_file(PIVOT_TABLE_URL, "pivot_table.pkl")
-model = load_file(MODEL_URL, "book_recommender_model.pkl")
+    pivot_table = joblib.load(pivot_file)
+    model = joblib.load(model_file)
+
+    return pivot_table, model
+
+# ⭐ FIX: actually load the data here
+pivot_table, model = load_data()
 
 # ============ Page Config ============
 st.set_page_config(page_title="Book Recommender", page_icon="📚", layout="centered")
@@ -62,6 +72,7 @@ if st.button("✨ Recommend"):
             st.error("❌ Book not found in database.")
             st.stop()
 
+    # Get recommendations
     book_vector = pivot_table[book_query].values.reshape(1, -1)
     distances, indices = model.kneighbors(book_vector, n_neighbors=n_recommendations + 1)
 
